@@ -1,0 +1,84 @@
+﻿@using FhirBlaze.SharedComponents.Services;
+@using Hl7.Fhir.Introspection;
+@using Hl7.Fhir.Model;
+@using Hl7.Fhir.Serialization;
+@using Hl7.Fhir.Specification;
+@using Newtonsoft.Json;
+@using Task = System.Threading.Tasks.Task;
+
+<div class="card">
+    <div class="card-header">
+        <h3 class=".card-title">
+            <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
+                MedicationRequest
+            </button>
+
+        </h3>
+        <h4 class="card-subtitle mb-2 text-muted">@MedicationRequest?.Identifier?.FirstOrDefault()?.Value</h4>
+    </div>
+    <div class="collapse @ButtonClass()">
+        <div class="card-body">
+            @if (MedicationRequest?.Identifier?.Any() ?? false)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        @{
+                            var identifier = MedicationRequest?.Identifier?.FirstOrDefault();
+                            <b>Identifier</b>
+                            <p>@identifier?.System</p>
+                            <p>@identifier?.Value</p>
+                        }
+                    </div>
+                </div>
+            }
+
+            @*@if (MedicationRequest?.Medication != null)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <CodeableConceptDisplay CodeableConcept="MedicationRequest.Medication" Title="Code"></CodeableConceptDisplay>
+                    </div>
+                </div>
+            }*@
+
+            @if (!string.IsNullOrWhiteSpace(MedicationRequest?.Status?.ToString()))
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <b>Status:</b> @MedicationRequest?.Status?.ToString()
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(MedicationRequest?.Intent?.ToString()))
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <b>Intent:</b> @MedicationRequest?.Intent?.ToString()
+                    </div>
+                </div>
+            }
+
+            @if (MedicationRequest?.Subject != null)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <ResourceReferenceDisplay ResourceReference="@MedicationRequest!.Subject" Title="Subject"></ResourceReferenceDisplay>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private string ButtonClass() => Collapsed ? "show" : "";
+
+    [Parameter]
+    public bool Collapsed { get; set; } = false;
+
+    [Parameter]
+    public MedicationRequest MedicationRequest { get; set; } = new MedicationRequest();
+}
+

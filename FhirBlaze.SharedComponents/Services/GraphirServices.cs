@@ -1,5 +1,6 @@
 ﻿using FhirBlaze.SharedComponents.Services.GraphQL;
 using Hl7.Fhir.Model;
+using Hl7.Fhir.Rest;
 using Hl7.Fhir.Serialization;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace FhirBlaze.SharedComponents.Services
             _httpClient = httpClient;
             _fhirParser = new FhirJsonParser();
         }
+
+        public Uri Endpoint { get; }
 
         public Task<List<TResource>> ExecuteFhirQueryAsync<TResource>(string queryStr) where TResource : Resource, new()
         {
@@ -182,10 +185,31 @@ namespace FhirBlaze.SharedComponents.Services
             return response.Data.WhoAmI;
         }
 
+        public Task<Resource> GetAsync(string url)
+        {
+            throw new NotImplementedException();
+        }
+
         Task<IList<Observation>> IFhirService.GetPatientObservations(string patientId)
         {
             throw new NotImplementedException();
         }
+
+        Task<IList<Procedure>> IFhirService.GetPatientProcedures(string patientId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IList<Condition>> IFhirService.GetPatientConditions(string patientId)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IList<MedicationRequest>> IFhirService.GetPatientMedicationRequests(string patientId)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 
 }

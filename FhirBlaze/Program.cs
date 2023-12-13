@@ -10,6 +10,7 @@ using System.Net.Http;
 using FhirBlaze.SharedComponents.SMART;
 using Blazored.Modal;
 using FhirBlaze.SharedComponents.Services;
+using FhirBlaze.CDSHooks;
 
 namespace FhirBlaze
 {
@@ -77,7 +78,13 @@ namespace FhirBlaze
 
             builder.Services.AddScoped<OpenAIService>();
 
-            
+            builder.Services.AddHttpClient<CDSHooksHttpClient>(client =>
+                client.BaseAddress = new Uri(builder.Configuration["CDSHooks:BaseUrl"])
+            );
+            // Add a scoped CDSServices object so it can be used anywhere.
+            //DJA-I can't seem to get this to work.
+            builder.Services.AddScoped<CDSServices>();
+            builder.Services.AddScoped<AppState>();
 
             await builder.Build().RunAsync();
         }

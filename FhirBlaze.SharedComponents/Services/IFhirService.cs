@@ -6,6 +6,8 @@ namespace FhirBlaze.SharedComponents.Services
 {
     public interface IFhirService
     {
+        System.Uri Endpoint { get; }
+
         Task<TResource> GetResourceByIdAsync<TResource>(string resourceId) where TResource : Resource, new();
         Task<List<TResource>> ExecuteFhirQueryAsync<TResource>(string queryStr) where TResource : Resource, new();
 
@@ -16,7 +18,12 @@ namespace FhirBlaze.SharedComponents.Services
         Task<int> GetPatientCountAsync();
         Task<IList<Patient>> SearchPatient(Patient patient);
 
+        Task<Resource> GetAsync(string url);
+
         Task<IList<Observation>> GetPatientObservations(string patientId);
+        Task<IList<Procedure>> GetPatientProcedures(string patientId);
+        Task<IList<Condition>> GetPatientConditions(string patientId);
+        Task<IList<MedicationRequest>> GetPatientMedicationRequests(string patientId);
         #endregion
 
         #region Questionnaire

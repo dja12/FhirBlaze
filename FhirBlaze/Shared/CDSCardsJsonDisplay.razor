@@ -1,0 +1,38 @@
+﻿@using Newtonsoft.Json;
+
+<div class="card">
+    <div class="card-header">
+        <h3 class=".card-title">
+            <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
+                Cards
+            </button>
+        </h3>
+    </div>
+    <div class="collapse @ButtonClass()">
+        <div class="card-body">
+            <pre>
+                @CardsJSON
+            </pre>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string ButtonClass() => Collapsed ? "show" : "";
+    private string CardsJSON { get; set; }
+    private CDSCards _cards;
+
+    [Parameter]
+    public bool Collapsed { get; set; } = false;
+
+    [Parameter]
+    public CDSCards Cards
+    {
+        get { return _cards; }
+        set
+        {
+            CardsJSON = JsonConvert.SerializeObject(value, Formatting.Indented);
+            _cards = value;
+        }
+    }
+}

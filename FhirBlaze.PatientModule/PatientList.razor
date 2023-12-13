@@ -65,6 +65,7 @@
                                     <ChestistLauncher CurrentPatient=@patient />
                                     <button @onclick="@((e)=> ShowQuestionnaire(patient.Id, patient.Name.FirstOrDefault()))" class="btn btn-primary">Show Questionnaire</button>
                                     <button @onclick="@(e => GotoDetails(patient.Id))" class="btn btn-primary">Details</button>
+                                    <button @onclick="@(e => GotoCDSHooks(patient.Id))" class="btn btn-primary">CDS Hook</button>
                                 </td>
                             </tr>
                         }
@@ -102,14 +103,19 @@
         Navigation.NavigateTo($"patient/{patientId}");
     }
 
+    private async System.Threading.Tasks.Task GotoCDSHooks(string patientId)
+    {
+        Navigation.NavigateTo($"cdshooks/{patientId}");
+    }
+
     void ShowQuestionnaire(string patientId, HumanName patientName)
     {
         var parameters = new ModalParameters();
         var options = new ModalOptions
-            {
-                Class = "blazored-modal",
-                ContentScrollable = true
-            };
+        {
+            Class = "blazored-modal",
+            ContentScrollable = true
+        };
         var formattedName = $"{patientName.Given.First()} {patientName.Family}";
         parameters.Add(nameof(RenderQuestionnaire.Id), QuestionnaireId);
         parameters.Add(nameof(RenderQuestionnaire.PatientId), patientId);

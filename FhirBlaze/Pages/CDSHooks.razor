@@ -1,0 +1,154 @@
+﻿@page "/cdshooks"
+@page "/cdshooks/{PatientId}"
+@using Hl7.Fhir.Model
+@using Hl7.Fhir.Serialization
+@using FhirBlaze.SharedComponents.Services
+@using Newtonsoft.Json.Serialization
+@inject AppState AppState
+@inject CDSHooksHttpClient Http
+@inject IFhirService fhirService
+
+<h1>CDS Hooks</h1>
+
+@if (services == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @if (PatientId != null)
+    {
+        <div>
+            Patient ID = @PatientId
+        </div>
+        @if (prefetchReady)
+        {
+            <br />
+            <div>Prefetch complete!</div>
+            <br />
+            <CDSPrefetchDisplay PrefetchResults="@prefetchResults" />
+            <br />
+            <CDSRequestDisplay Request="@request" />
+            <br />
+            <div>
+                <button type="button" class="btn btn-primary" @onclick="SendRequest">Send Request</button>
+            </div>
+            @if (serviceRequestInProgress)
+            {
+                <br />
+                <div>Processing request...</div>
+            }
+            @if (cards != null)
+            {
+                <br />
+                <CDSCardsJsonDisplay Cards="@cards" />
+
+                @foreach (var card in cards.cards)
+                {
+                    <br />
+                    <CDSCardFormattedDisplay Card="@card" PatientId="@PatientId" />
+                }
+            }
+        }
+        else
+        {
+            <br />
+            <div>Retrieving prefetch...</div>
+        }
+    }
+    else
+    {
+        <div>
+            <b>Service endpoint: </b> @Http.ServiceUrl
+        </div>
+        <div>
+            <button type="button" class="btn btn-primary" @onclick="InitializeCDSHooks">Update</button>
+        </div>
+
+        <h3>Services</h3>
+        @foreach (var service in services.services)
+        {
+            <CDSServiceDisplay Service="@service" />
+        }
+    }
+}
+
+@code {
+
+    [Parameter]
+    public string PatientId { get; set; }
+
+    private readonly string patientIdToken = "{{context.patientId}}";
+    private readonly string practitionerIdToken = "{{userPractitionerId}}";
+    private Dictionary<string, Resource> prefetchResults = new Dictionary<string, Resource>();
+    private bool prefetchReady = false;
+    private bool serviceRequestInProgress = false;
+
+    private CDSServices services;
+    private CDSRequest request;
+    private CDSCards cards;
+
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        if (AppState.CurrentServices == null)
+        {
+            await InitializeCDSHooks();
+        }
+        else
+        {
+            services = AppState.CurrentServices;
+        }
+
+        if (PatientId != null)
+        {
+            foreach (var entry in AppState.PatientViewService.prefetch)
+            {
+                // Replace the context parameter with the actual value.
+                // TODO - do this better
+                string prefetch = entry.Value.Replace(patientIdToken, PatientId).Replace(practitionerIdToken, AppState.PractitionerId);
+
+                var resultResource = await fhirService.GetAsync(prefetch);
+                prefetchResults.Add(entry.Key, resultResource);
+            }
+
+            request = new CDSRequest()
+            {
+                hook = AppState.PatientViewService.Hook,
+                hookInstance = Guid.NewGuid().ToString(),
+                fhirServer = fhirService.Endpoint.ToString(),
+                //fhirAuthorization = new CDSFhirAuthorization() {},
+                context = new CDSHookContext()
+                {
+                    userId = "Practitioner/" + AppState.PractitionerId,
+                    patientId = PatientId
+                },
+                prefetch = prefetchResults
+            };
+
+            prefetchReady = true;
+        }
+    }
+
+    private async System.Threading.Tasks.Task InitializeCDSHooks()
+    {
+        services = null;
+        services = await Http.DiscoveryAsync();
+
+        AppState.CurrentServices = services;
+        foreach (var service in services.services)
+        {
+            if (service.Hook.Equals("patient-view"))
+            {
+                AppState.PatientViewService = service;
+            }
+        }
+    }
+
+    private async System.Threading.Tasks.Task SendRequest()
+    {
+        cards = null;
+        serviceRequestInProgress = true;
+        cards = await Http.ServiceAsync(AppState.PatientViewService.Id, request);
+        serviceRequestInProgress = false;
+    }
+}

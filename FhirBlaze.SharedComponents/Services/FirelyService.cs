@@ -19,6 +19,8 @@ namespace FhirBlaze.SharedComponents.Services
             _fhirClient = client;
         }
 
+        public Uri Endpoint { get { return _fhirClient.Endpoint; } }
+
         public async Task<TResource> GetResourceByIdAsync<TResource>(string resourceId) where TResource : Resource, new()
         {
             var result = await _fhirClient.SearchByIdAsync<TResource>(resourceId, pageSize: _defaultPageSize);
@@ -60,6 +62,11 @@ namespace FhirBlaze.SharedComponents.Services
             }
 
             return resources;
+        }
+
+        public Task<Resource> GetAsync(string url)
+        {
+            return _fhirClient.GetAsync(url);
         }
 
         #region Patient
@@ -146,6 +153,63 @@ namespace FhirBlaze.SharedComponents.Services
             while (bundle != null)
             {
                 result.AddRange(bundle.Entry.Select(p => (Observation)p.Resource).ToList());
+                bundle = await _fhirClient.ContinueAsync(bundle);
+            }
+
+            return result;
+        }
+
+        public async Task<IList<Procedure>> GetPatientProcedures(string patientId)
+        {
+            if (string.IsNullOrEmpty(patientId))
+            {
+                throw new ArgumentNullException("patientId");
+            }
+
+            var bundle = await _fhirClient.SearchAsync<Procedure>(criteria: new[] { $"subject=Patient/{patientId}" });
+            var result = new List<Procedure>();
+
+            while (bundle != null)
+            {
+                result.AddRange(bundle.Entry.Select(p => (Procedure)p.Resource).ToList());
+                bundle = await _fhirClient.ContinueAsync(bundle);
+            }
+
+            return result;
+        }
+
+        public async Task<IList<Condition>> GetPatientConditions(string patientId)
+        {
+            if (string.IsNullOrEmpty(patientId))
+            {
+                throw new ArgumentNullException("patientId");
+            }
+
+            var bundle = await _fhirClient.SearchAsync<Condition>(criteria: new[] { $"subject=Patient/{patientId}" });
+            var result = new List<Condition>();
+
+            while (bundle != null)
+            {
+                result.AddRange(bundle.Entry.Select(p => (Condition)p.Resource).ToList());
+                bundle = await _fhirClient.ContinueAsync(bundle);
+            }
+
+            return result;
+        }
+
+        public async Task<IList<MedicationRequest>> GetPatientMedicationRequests(string patientId)
+        {
+            if (string.IsNullOrEmpty(patientId))
+            {
+                throw new ArgumentNullException("patientId");
+            }
+
+            var bundle = await _fhirClient.SearchAsync<MedicationRequest>(criteria: new[] { $"subject=Patient/{patientId}" });
+            var result = new List<MedicationRequest>();
+
+            while (bundle != null)
+            {
+                result.AddRange(bundle.Entry.Select(p => (MedicationRequest)p.Resource).ToList());
                 bundle = await _fhirClient.ContinueAsync(bundle);
             }
 

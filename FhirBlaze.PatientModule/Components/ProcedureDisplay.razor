@@ -1,0 +1,86 @@
+﻿@using FhirBlaze.SharedComponents.Services;
+@using Hl7.Fhir.Introspection;
+@using Hl7.Fhir.Model;
+@using Hl7.Fhir.Serialization;
+@using Hl7.Fhir.Specification;
+@using Newtonsoft.Json;
+@using Task = System.Threading.Tasks.Task;
+
+<div class="card">
+    <div class="card-header">
+        <h3 class=".card-title">
+            <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
+                Procedure
+            </button>
+
+        </h3>
+        <h4 class="card-subtitle mb-2 text-muted">@Procedure?.Identifier?.FirstOrDefault()?.Value</h4>
+    </div>
+    <div class="collapse @ButtonClass()">
+        <div class="card-body">
+            @if (Procedure?.Identifier?.Any() ?? false)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        @{
+                            var identifier = Procedure?.Identifier?.FirstOrDefault();
+                            <b>Identifier</b>
+                            <p>@identifier?.System</p>
+                            <p>@identifier?.Value</p>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Procedure?.Status?.ToString()))
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <b>Status:</b> @Procedure?.Status?.ToString()
+                    </div>
+                </div>
+            }
+
+            @if (Procedure?.Code != null)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <CodeableConceptDisplay CodeableConcept="Procedure.Code" Title="Code"></CodeableConceptDisplay>
+                    </div>
+                </div>
+            }
+
+            @if (Procedure?.Subject != null)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <ResourceReferenceDisplay ResourceReference="@Procedure!.Subject" Title="Subject"></ResourceReferenceDisplay>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private string ButtonClass() => Collapsed ? "show" : "";
+
+    [Parameter]
+    public bool Collapsed { get; set; } = false;
+
+    [Parameter]
+    public Procedure Procedure { get; set; } = new Procedure();
+
+    //private async Task HandleValidSubmit()
+    //{
+    //    var returnedObservation = await _apiService.SubmitObservationAsync(Observation);
+
+    //    _notificationService.AddNotification(new Notification
+    //    {
+    //        Title = "Observation Created",
+    //        Message = $"Observation {returnedObservation.Id} created successfully",
+    //        CreatedAt = DateTime.Now
+    //    });
+    //}
+}

@@ -1,0 +1,82 @@
+﻿@using FhirBlaze.SharedComponents.Services;
+@using Hl7.Fhir.Introspection;
+@using Hl7.Fhir.Model;
+@using Hl7.Fhir.Serialization;
+@using Hl7.Fhir.Specification;
+@using Newtonsoft.Json;
+@using Task = System.Threading.Tasks.Task;
+
+<div class="card">
+    <div class="card-header">
+        <h3 class=".card-title">
+            <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
+                Condition
+            </button>
+
+        </h3>
+        <h4 class="card-subtitle mb-2 text-muted">@Condition?.Identifier?.FirstOrDefault()?.Value</h4>
+    </div>
+    <div class="collapse @ButtonClass()">
+        <div class="card-body">
+            @if (Condition?.Identifier?.Any() ?? false)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        @{
+                            var identifier = Condition?.Identifier?.FirstOrDefault();
+                            <b>Identifier</b>
+                            <p>@identifier?.System</p>
+                            <p>@identifier?.Value</p>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Condition?.Code != null)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <CodeableConceptDisplay CodeableConcept="Condition.Code" Title="Code"></CodeableConceptDisplay>
+                    </div>
+                </div>
+            }
+
+            @if (Condition?.ClinicalStatus != null)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <CodeableConceptDisplay CodeableConcept="Condition.ClinicalStatus" Title="ClinicalStatus"></CodeableConceptDisplay>
+                    </div>
+                </div>
+            }
+
+            @if (Condition?.VerificationStatus != null)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <CodeableConceptDisplay CodeableConcept="Condition.VerificationStatus" Title="VerificationStatus"></CodeableConceptDisplay>
+                    </div>
+                </div>
+            }
+
+            @if (Condition?.Subject != null)
+            {
+                <div class="row mt-2 mb-2">
+                    <div class="col">
+                        <ResourceReferenceDisplay ResourceReference="@Condition!.Subject" Title="Subject"></ResourceReferenceDisplay>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string ButtonClass() => Collapsed ? "show" : "";
+
+    [Parameter]
+    public bool Collapsed { get; set; } = false;
+
+    [Parameter]
+    public Condition Condition { get; set; } = new Condition();
+}

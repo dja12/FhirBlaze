@@ -1,0 +1,64 @@
+﻿@using FhirBlaze.SharedComponents.SMART
+@using Newtonsoft.Json;
+@using Markdig;
+@inject SmartLauncher Launcher
+
+<div class="card">
+    <div class="card-header">
+        <h3 class=".card-title">
+            <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
+                @Card.summary
+            </button>
+        </h3>
+    </div>
+    <div class="collapse @ButtonClass()">
+        <div class="card-body">
+            @((MarkupString) Detail)
+        </div>
+        <div>
+            @foreach (var link in Card.links)
+            {
+                @if (link.type.Equals("smart"))
+                {
+                    <a class="btn btn-link btn-block text-left" target="_blank" href="@LaunchUrl">@link.label</a>
+                }
+                else
+                {
+                    <a class="btn btn-link btn-block text-left collapsed " target="_blank" href="@link.url">@link.label</a>
+                }
+            }
+        </div>
+        <div class="card-footer">
+            @foreach (var reason in Card.overrideReasons)
+            {
+                <button class="btn btn-primary mb-1 mr-1">@reason.display</button>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string ButtonClass() => !Collapsed ? "show" : "";
+    private string LaunchUrl { get; set; }
+    private string Detail => Markdown.ToHtml(Card.detail);
+
+    [Parameter]
+    public bool Collapsed { get; set; } = false;
+
+    [Parameter]
+    public CDSCard Card { get; set; }
+
+    [Parameter]
+    public string PatientId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        var ctx = new
+        {
+            patient = PatientId,
+            viewType = "navigator"
+        };
+        LaunchUrl = Launcher.GetLaunchUrl(JsonConvert.SerializeObject(ctx));
+    }
+}

@@ -1,0 +1,33 @@
+﻿<div class="card">
+    <div class="card-header">
+        <h4 class=".card-title">
+            @Service.Hook
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <b>Id: </b> @Service.Id
+        </div>
+        <div class="row">
+            <b>Title: </b> @Service.Title
+        </div>
+        <div class="row">
+            <b>Description: </b> @Service.Description
+        </div>
+        <div class="row">
+            <b>Prefetch:</b>
+        </div>
+        <ul>
+            @foreach (var query in @Service.prefetch)
+            {
+                <li>@query.Key : @query.Value</li>
+            }
+        </ul>
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public CDSService Service { get; set; }
+}
