@@ -1,18 +1,35 @@
 ﻿@page "/patient/{Id}"
+@using FhirBlaze.Models
 @using FhirBlaze.SharedComponents.SMART
-@using Hl7.Fhir.Model;
+@using Hl7.Fhir.Model
 @using Newtonsoft.Json
 @inject NavigationManager UriHelper
 @inject SmartLauncher Launcher
 @inject IFhirService fhirService
+@inject AppState AppState
+
 <div class="container">
     <h3>Patient Detail</h3>
     <div class="card border-primary mb-6">
         <h5 class="card-header">
-            @CurrentPatient.Name?.FirstOrDefault() - (@CurrentPatient.Gender)
+            @CurrentPatient.Name?.FirstOrDefault()
+            <button style="float: right" class="btn btn-primary" title="View JSON" @onclick="ShowPatientJson"><i class="oi oi-code"></i></button>
         </h5>
         <div class="card-body">
             <p class="card-text">
+                <dl class="row">
+                    <dt class="col-sm-3">DOB:</dt>
+                    <dd class="col-sm-9">@CurrentPatient.BirthDate</dd>
+
+                    <dt class="col-sm-3">Gender:</dt>
+                    <dd class="col-sm-9">@CurrentPatient.Gender</dd>
+
+                    <dt class="col-sm-3">Race:</dt>
+                    <dd class="col-sm-9">@GetPatientRace(CurrentPatient)</dd>
+
+                    <dt class="col-sm-3">Ethnicity:</dt>
+                    <dd class="col-sm-9"></dd>
+                </dl>
                 <dl class="row">
                     <dt class="col-sm-3">Address:</dt>
                     <dd class="col-sm-9"><AddressDisplay Address="@CurrentPatient.Address?.FirstOrDefault()" /></dd>
@@ -20,46 +37,70 @@
                     <dt class="col-sm-3">Phone:</dt>
                     <dd class="col-sm-9">@CurrentPatient.Telecom?.FirstOrDefault(t => t.System == ContactPoint.ContactPointSystem.Phone)?.Value</dd>
 
-                    <dt class="col-sm-3">Date of Birth:</dt>
-                    <dd class="col-sm-9">@CurrentPatient.BirthDate</dd>
-
                     <dt class="col-sm-3 text-truncate">E-mail:</dt>
                     <dd class="col-sm-9">@CurrentPatient.Telecom?.FirstOrDefault(e => e.System == ContactPoint.ContactPointSystem.Email)?.Value</dd>
                 </dl>
             </p>
-            <button type="button" class="btn btn-primary">Active: @CurrentPatient.Active</button>
-            <a class="btn btn-primary" target="_blank" href="@ChestistLaunchUrl">Truity Provider</a>
-            <button type="button" class="btn btn-primary" @onclick="LaunchQuestionnaire">Take Survey</button>
+            @*<button type="button" class="btn btn-primary">Active: @CurrentPatient.Active</button>*@
+            <TruityAppLauncher CurrentPatient=@Id Navigator="true" />
+
+            @*<a class="btn btn-primary" target="_blank" href="@ChestistLaunchUrl">xTruity Provider</a>
+        <button type="button" class="btn btn-primary" @onclick="LaunchQuestionnaire">Take Survey</button>*@
+
         </div>
     </div>
-    <div class="mb-6">
-        <h3>Observations: @PatientObservations.Count</h3>
-        @foreach (var o in PatientObservations)
-        {
-            <ObservationDisplay Observation="o" />
-        }
-    </div>
-    <div class="mb-6">
-        <h3>Procedures: @PatientProcedures.Count</h3>
-        @foreach (var o in PatientProcedures)
-        {
-            <ProcedureDisplay Procedure="o" />
-        }
-    </div>
-    <div class="mb-6">
-        <h3>Conditions: @PatientConditions.Count</h3>
-        @foreach (var o in PatientConditions)
-        {
-            <ConditionDisplay Condition="o" />
-        }
-    </div>
-    <div class="mb-6">
-        <h3>MedicationRequests: @PatientMedicationRequests.Count</h3>
-        @foreach (var o in PatientMedicationRequests)
-        {
-            <MedicationRequestDisplay MedicationRequest="o" />
-        }
-    </div>
+
+    @*<div class="card mb-6">
+            <div class="card-header">
+                <h3 class=".card-title">
+                    <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
+                        <h3>
+                            Observations: @PatientObservations.Count
+                        </h3>
+                    </button>
+                </h3>
+            </div>
+            <div class="collapse @ButtonClass()">
+                @foreach (var o in PatientObservations)
+                {
+                    <ObservationDisplay Observation="o" />
+                }
+            </div>
+        </div>*@
+
+    @*<div class="card mb-6">
+            <h3>Procedures: @PatientProcedures.Count</h3>
+            @foreach (var o in PatientProcedures)
+            {
+                <ProcedureDisplay Procedure="o" />
+            }
+        </div>*@
+
+    @*<div class="card mb-6">
+            <h3>Conditions: @PatientConditions.Count</h3>
+            @foreach (var o in PatientConditions)
+            {
+                <ConditionDisplay Condition="o" />
+            }
+        </div>*@
+
+    @*<div class="card mb-6">
+            <h3>MedicationRequests: @PatientMedicationRequests.Count</h3>
+            @foreach (var o in PatientMedicationRequests)
+            {
+                <MedicationRequestDisplay MedicationRequest="o" />
+            }
+        </div>*@
+
+    <br />
+    <ObservationsDisplay PatientObservations="@PatientObservations" />
+    <br />
+    <ProceduresDisplay PatientProcedures="@PatientProcedures" />
+    <br />
+    <ConditionsDisplay PatientCondition="@PatientConditions" />
+    <br />
+    <MedicationRequestsDisplay PatientMedicationRequests="@PatientMedicationRequests" />
+
 </div>
 
 
@@ -90,6 +131,23 @@
         PatientMedicationRequests = await fhirService.GetPatientMedicationRequests(ctx.patient);
     }
 
+    private string GetPatientRace(Patient patient)
+    {
+        //var usCoreRaceExt = patient?.Extension?.FirstOrDefault(e => e.Url == "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
+        var usCoreRaceExt = patient?.Extension; //?.FirstOrDefault();
+        var ombCategoryExt = usCoreRaceExt?.FirstOrDefault();
+        //var ombExt = raceExt.Where(e => e.Url == "ombCategory").FirstOrDefault();
+        //var coding = ((CodeableConcept)(ombExt.Value)).Coding.FirstOrDefault();
+        //return coding.Code + " : " + coding.Display;
+        return ombCategoryExt != null ? ombCategoryExt.ToString() : "null";
+    }
+
+    private void ShowPatientJson()
+    {
+        AppState.CurrentResource = CurrentPatient;
+        UriHelper.NavigateTo("jsonview");
+    }
+
     public void LaunchClick()
     {
         var ctx = new
@@ -104,4 +162,5 @@
     {
 
     }
+
 }

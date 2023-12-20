@@ -1,0 +1,70 @@
+﻿@using FhirBlaze.SharedComponents.Services
+@using FhirBlaze.SharedComponents.SMART
+@using Newtonsoft.Json
+@using FhirBlaze.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject NavigationManager UriHelper
+@inject SmartLauncher Launcher
+@inject CacheContextService CacheContextService
+@inject Microsoft.JSInterop.IJSRuntime JSRuntime
+@inject AppState AppState
+
+<button class="btn @ButtonClass()" @onclick="LaunchApp">Truity Provider</button>
+
+@code {
+    private string ButtonClass() => ShowAsLink ? "btn-link" : "btn-primary";
+
+    [Parameter]
+    public string CurrentPatient { get; set; }
+
+    [Parameter]
+    public bool Navigator { get; set; } = false;
+
+    [Parameter]
+    public bool ShowAsLink { get; set; } = false;
+
+    [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    [Inject] IAccessTokenProvider TokenProvider { get; set; }
+
+
+    private string LaunchLink { get; set; }
+
+    //    protected override void OnInitialized()
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        base.OnInitialized();
+
+        var options = new AccessTokenRequestOptions();
+        options.Scopes = new List<string>();
+        options.Scopes.Append<string>("https://smart-on-fhir-server.trulitehealth1.onmicrosoft.com/user_impersonation");
+        var accessTokenResult = await TokenProvider.RequestAccessToken(options);
+        if (accessTokenResult.TryGetToken(out var token))
+        {
+            AppState.AccessToken = token.Value;
+        }
+
+        if (AuthenticationState is not null)
+        {
+            var authState = await AuthenticationState;
+            var oid = authState?.User?.Claims?.FirstOrDefault(c => c.Type == "oid");
+            AppState.UserId = oid?.Value;
+        }
+
+        var ctx = new
+        {
+            patient = CurrentPatient
+        };
+        LaunchLink = Launcher.GetLaunchUrl(JsonConvert.SerializeObject(ctx));
+    }
+
+    private async Task LaunchApp()
+    {
+        // Call the cache context endpoint first.
+        await CacheContextService.SaveConext(AppState.AccessToken, AppState.UserId, CurrentPatient, Navigator);
+
+        // Now launch the App
+        await JSRuntime.InvokeVoidAsync("open", LaunchLink, "_blank");
+    }
+}

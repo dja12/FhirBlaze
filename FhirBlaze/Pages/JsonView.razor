@@ -1,0 +1,31 @@
+﻿@page "/jsonview"
+
+@using FhirBlaze.Models
+@using Hl7.Fhir.Serialization
+
+@inject AppState AppState 
+
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 class=".card-title">
+            JSON Viewer
+        </h3>
+    </div>
+    <div class="card-body">
+        <pre>
+            @ResourceJson
+        </pre>
+    </div>
+</div>
+
+@code {
+    private FhirJsonSerializer serializer = new FhirJsonSerializer(new SerializerSettings { Pretty = true });
+    private string ResourceJson { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        ResourceJson = serializer.SerializeToString(AppState.CurrentResource);
+
+        return base.OnInitializedAsync();
+    }
+}

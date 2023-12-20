@@ -8,6 +8,13 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Hl7.Fhir.R4" Version="4.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="CDSHooks\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CDSHooks\" />
+  </ItemGroup>
 </Project>

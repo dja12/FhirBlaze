@@ -1,0 +1,78 @@
+﻿@using Hl7.Fhir.Model
+@using FhirBlaze.Models
+@inject AppState AppState
+@inject NavigationManager NavManager
+
+<div class="card mb-6">
+    <div class="card-header">
+        <h3 class=".card-title">
+            <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
+                <h3>
+                    Condition: @PatientCondition.Count
+                </h3>
+            </button>
+        </h3>
+    </div>
+    <div class="collapse @ButtonClass()">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Onset Date</th>
+                    <th>Clinical<br /> Status</th>
+                    <th>Verification<br /> Status</th>
+                    <th>Code</th>
+                    <th>System</th>
+                    <th>Display</th>
+                    <th> </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (PatientCondition.Count > 0)
+                {
+                    @foreach (var condition in PatientCondition)
+                    {
+                        var coding = condition.Code?.Coding?.FirstOrDefault();
+                        var clinical = condition.ClinicalStatus?.Coding?.FirstOrDefault();
+                        var verification = condition.VerificationStatus?.Coding?.FirstOrDefault();
+                        //DataType date = procedure.Performed.FirstOrDefault().Value;
+
+                        <tr>
+                            <td nowrap>@condition.Onset?.ToString()</td>
+                            @*<td>@string.Join(' ', condition.Onset?.Select(e => $"[{e.Key}: {e.Value}]")?.ToArray() ?? new string[] { })</td>*@
+                            <td>@clinical.Code</td>
+                            <td>@verification.Code</td>
+                            <td nowrap>@coding.Code</td>
+                            <td>@coding.System</td>
+                            <td>@coding.Display</td>
+                            <td>
+                                <button class="btn btn-link" title="View JSON" @onclick="() => ShowJson(condition)"><i class="oi oi-code"></i></button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-danger">No conditions</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private string ButtonClass() => Collapsed ? "show" : "";
+
+    [Parameter]
+    public bool Collapsed { get; set; } = false;
+
+    [Parameter]
+    public IList<Condition> PatientCondition { get; set; } = new List<Condition>();
+
+    private void ShowJson(Resource res)
+    {
+        AppState.CurrentResource = res;
+        NavManager.NavigateTo("jsonview");
+    }
+}

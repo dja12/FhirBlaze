@@ -11,6 +11,8 @@ using FhirBlaze.SharedComponents.SMART;
 using Blazored.Modal;
 using FhirBlaze.SharedComponents.Services;
 using FhirBlaze.CDSHooks;
+using FhirBlaze.Models;
+using Microsoft.JSInterop;
 
 namespace FhirBlaze
 {
@@ -38,6 +40,9 @@ namespace FhirBlaze
                     Console.WriteLine($"Adding {scope} to requested permissions");
                     options.ProviderOptions.DefaultAccessTokenScopes.Add(scope);
                 }
+
+                //DJA-trying to get v2.0 access token from MSAL login
+                options.ProviderOptions.DefaultAccessTokenScopes.Add("https://smart-on-fhir-server.trulitehealth1.onmicrosoft.com/user_impersonation");
 
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
                 options.ProviderOptions.LoginMode = "redirect";
@@ -81,6 +86,11 @@ namespace FhirBlaze
             builder.Services.AddHttpClient<CDSHooksHttpClient>(client =>
                 client.BaseAddress = new Uri(builder.Configuration["CDSHooks:BaseUrl"])
             );
+
+            builder.Services.AddHttpClient<CacheContextService>(client =>
+                client.BaseAddress = new Uri(builder.Configuration["ChestistApp:SmartAuthUrl"])
+            );
+
             // Add a scoped CDSServices object so it can be used anywhere.
             //DJA-I can't seem to get this to work.
             builder.Services.AddScoped<CDSServices>();

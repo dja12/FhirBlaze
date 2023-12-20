@@ -1,9 +1,10 @@
-﻿@using FhirBlaze.SharedComponents.SMART
+﻿@using FhirBlaze.PatientModule.Components
+@using FhirBlaze.SharedComponents.SMART
 @using Newtonsoft.Json;
 @using Markdig;
 @inject SmartLauncher Launcher
 
-<div class="card">
+<div class="card mb-6">
     <div class="card-header">
         <h3 class=".card-title">
             <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
@@ -20,7 +21,7 @@
             {
                 @if (link.type.Equals("smart"))
                 {
-                    <a class="btn btn-link btn-block text-left" target="_blank" href="@LaunchUrl">@link.label</a>
+                    <TruityAppLauncher CurrentPatient="@PatientId" Navigator="true" ShowAsLink="true" />
                 }
                 else
                 {
@@ -39,7 +40,6 @@
 
 @code {
     private string ButtonClass() => !Collapsed ? "show" : "";
-    private string LaunchUrl { get; set; }
     private string Detail => Markdown.ToHtml(Card.detail);
 
     [Parameter]
@@ -54,11 +54,5 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
-        var ctx = new
-        {
-            patient = PatientId,
-            viewType = "navigator"
-        };
-        LaunchUrl = Launcher.GetLaunchUrl(JsonConvert.SerializeObject(ctx));
     }
 }

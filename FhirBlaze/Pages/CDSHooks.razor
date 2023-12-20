@@ -1,9 +1,10 @@
-﻿@page "/cdshooks"
-@page "/cdshooks/{PatientId}"
+﻿@page "/cdshooks/{PatientId?}"
 @using Hl7.Fhir.Model
 @using Hl7.Fhir.Serialization
+@using FhirBlaze.Models
 @using FhirBlaze.SharedComponents.Services
 @using Newtonsoft.Json.Serialization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject AppState AppState
 @inject CDSHooksHttpClient Http
 @inject IFhirService fhirService
@@ -20,6 +21,9 @@ else
     {
         <div>
             Patient ID = @PatientId
+        </div>
+        <div>
+            User ID = @AppState.UserId
         </div>
         @if (prefetchReady)
         {
@@ -74,9 +78,8 @@ else
 }
 
 @code {
-
     [Parameter]
-    public string PatientId { get; set; }
+    public string? PatientId { get; set; }
 
     private readonly string patientIdToken = "{{context.patientId}}";
     private readonly string practitionerIdToken = "{{userPractitionerId}}";

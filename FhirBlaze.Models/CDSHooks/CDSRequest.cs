@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Hl7.Fhir.Model;
+﻿using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
-using Microsoft.Graph;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace FhirBlaze.CDSHooks
 {
