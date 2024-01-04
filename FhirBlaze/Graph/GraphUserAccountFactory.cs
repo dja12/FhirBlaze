@@ -7,6 +7,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using FhirBlaze.Models;
+using FhirBlaze.SharedComponents;
 
 namespace FhirBlaze.Graph
 {
@@ -20,15 +22,18 @@ namespace FhirBlaze.Graph
         private readonly IAccessTokenProviderAccessor accessor;
         private readonly ILogger<GraphUserAccountFactory> logger;
         private readonly GraphClientFactory clientFactory;
+        private readonly AppState appState;
 
         public GraphUserAccountFactory(IAccessTokenProviderAccessor accessor,
             GraphClientFactory clientFactory,
-            ILogger<GraphUserAccountFactory> logger)
+            ILogger<GraphUserAccountFactory> logger,
+            AppState appState)
         : base(accessor)
         {
             this.accessor = accessor;
             this.clientFactory = clientFactory;
             this.logger = logger;
+            this.appState = appState;
         }
 
         public async override ValueTask<ClaimsPrincipal> CreateUserAsync(
@@ -68,21 +73,41 @@ namespace FhirBlaze.Graph
 
             // Get user profile including mailbox settings
             // GET /me?$select=displayName,mail,mailboxSettings,userPrincipalName
+            //var user1 = await serviceClient.Me
+            //    .Request()
+            //    // Request only the properties used to
+            //    // set claims
+            //    .Select(u => new
+            //    {
+            //        u.DisplayName,
+            //        u.Mail,
+            //        u.UserPrincipalName
+            //    })
+            //    .GetAsync();
+
             var user = await serviceClient.Me
                 .Request()
-                // Request only the properties used to
-                // set claims
-                .Select(u => new
-                {
-                    u.DisplayName,
-                    u.Mail,
-                    u.UserPrincipalName
-                })
+                .Select("id,givenName,surname,displayName,mail,userPrincipalName," + GraphUserExtensions.FhirUser)
                 .GetAsync();
 
             logger.LogInformation($"Got user: {user.DisplayName}");
 
             claimsPrincipal.AddUserGraphInfo(user);
+
+            // Store some properties into AppState
+            appState.UserId = user.Id;
+            appState.UserFirstName = user.GivenName;
+            appState.UserLastName = user.Surname;
+            try
+            {
+                var fhirUser = claimsPrincipal.GetUserGraphFhirUser();
+                var parts = fhirUser.Split('/');
+                appState.PractitionerId = parts.Length > 1 ? parts[1] : null;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Failed to parse fhirUser claim!");
+            }
 
             // Get user's photo
             // GET /me/photos/48x48/$value

@@ -2,9 +2,10 @@
 @page "/practitioner/{Id}"
 
 @using FhirBlaze.PractitionerModule.Components
+@using Hl7.Fhir.Model
 
 @namespace FhirBlaze.PractitionerModule.Pages
 
 <CascadingValue Value="SelectedPractitioner">
-	<PractitionerDetailComponent IsEditable="true" OnPractitionerSaved="SavePractitioner" />
+	<PractitionerDetailComponent IsEditable="true" OnPractitionerSaved="@((args) => SavePractitioner(((Practitioner, bool))args))" />
 </CascadingValue>

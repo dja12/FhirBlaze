@@ -1,5 +1,8 @@
 ﻿@namespace FhirBlaze.PractitionerModule.Components
 
+@using FhirBlaze.Models
+@inject AppState AppState 
+
 <div class="container">
     <br/>
     <div class="container">
@@ -9,6 +12,7 @@
                     <th>Name</th>
                     <th>DOB</th>
                     <th>&nbsp;</th>
+                    <th>&nbsp;</th>
                 </tr>
             </thead>
             <tbody>
@@ -17,6 +21,7 @@
                 <tr>
                     <td>@practitioner.Name.FirstOrDefault()</td>
                     <td>@practitioner.BirthDate</td>
+                    <td>@(IsMe(practitioner) ? "EHR User" : "")</td>
                     <td>
                         <button @onclick="(() => PractitionerSelected(practitioner))" class="btn btn-primary">
                             Edit
@@ -30,3 +35,15 @@
     <br />
     <h3>Found: @(Practitioners.Count) practitioners!</h3>
 </div>
+
+@code {
+    private bool IsMe(Hl7.Fhir.Model.Practitioner practitioner)
+    {
+        bool me = false;
+        if (AppState.PractitionerId is not null)
+        {
+            me = practitioner.Id.Equals(AppState.PractitionerId);
+        }
+        return me;
+    }
+}

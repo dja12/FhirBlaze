@@ -18,28 +18,12 @@ namespace FhirBlaze.SharedComponents.Services
             this.http = http;
         }
 
-        public string EncodePayload(string payload)
-        {
-            var bytes = Encoding.UTF8.GetBytes(payload);
-            var base64 = Convert.ToBase64String(bytes);
-            //DJA-not doing the URL encode because the context cache function app is not expecting
-            // the data to be URL encoded.
-            //var urlEncode = HttpUtility.UrlEncode(base64);
-            return base64;
-        }
-
-        public async Task SaveConext(string token, string userId, string patientId, bool navigator = false)
+        public async Task SaveConext(string token, string userId, string encodedCtx)
 		{
-            var launch = new
-            {
-                patient = patientId,
-                viewType = navigator ? "navigator" : "browser"
-            };
-
             var cacheInfo = new
             {
                 userId = userId,
-                launch = EncodePayload(JsonConvert.SerializeObject(launch))
+                launch = encodedCtx
             };
 
 			var payload = JsonConvert.SerializeObject(cacheInfo);

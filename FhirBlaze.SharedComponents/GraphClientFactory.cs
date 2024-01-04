@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Authentication.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Graph;
 
-namespace FhirBlaze.Graph
+namespace FhirBlaze.SharedComponents
 {
     public class GraphClientFactory
     {

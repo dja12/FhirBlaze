@@ -133,13 +133,15 @@
 
     private string GetPatientRace(Patient patient)
     {
-        //var usCoreRaceExt = patient?.Extension?.FirstOrDefault(e => e.Url == "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
-        var usCoreRaceExt = patient?.Extension; //?.FirstOrDefault();
-        var ombCategoryExt = usCoreRaceExt?.FirstOrDefault();
-        //var ombExt = raceExt.Where(e => e.Url == "ombCategory").FirstOrDefault();
-        //var coding = ((CodeableConcept)(ombExt.Value)).Coding.FirstOrDefault();
-        //return coding.Code + " : " + coding.Display;
-        return ombCategoryExt != null ? ombCategoryExt.ToString() : "null";
+        //IEnumerable<Extension> extensions = patient.Select<Patient, Extension>("Patient.extension.where(url='http://hl7.org/fhir/us/core/StructureDefinition/us-core-race').extension.where(url='ombCategory')");
+
+        Extension usCoreRaceExt = patient?.Extension?.FirstOrDefault(e => e.Url == "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
+        Extension ombCategoryExt = usCoreRaceExt?.Extension?.FirstOrDefault(e => e.Url == "text");
+
+        //TODO Fix out how to cast the Extension object to the actual object.
+        //var raceList = ombCategoryExt.Extension.Cast<string>(); // doesn't work.
+
+        return ombCategoryExt?.Url;
     }
 
     private void ShowPatientJson()

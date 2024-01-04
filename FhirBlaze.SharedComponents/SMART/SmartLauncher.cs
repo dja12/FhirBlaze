@@ -18,12 +18,12 @@ namespace FhirBlaze.SharedComponents.SMART
             _authority = authority;
         }
 
-        public string GetLaunchUrl(string payloadJson)
+        public string GetLaunchUrl(string jsonEncoded)
         {
             var result = new StringBuilder();
             result.Append(_launchUrl);
-            // encode the json string
-            var jsonEncoded = EncodePayload(payloadJson);
+            //// encode the json string
+            //var jsonEncoded = EncodePayload(payloadJson);
             result.Append($"?launch={jsonEncoded}");
             result.Append($"&iss={_authority}");
 
@@ -32,8 +32,16 @@ namespace FhirBlaze.SharedComponents.SMART
 
         public string EncodePayload(string payload)
         {
+            //var bytes = Encoding.UTF8.GetBytes(payload);
+            //return HttpUtility.UrlEncode(Convert.ToBase64String(bytes));
+
             var bytes = Encoding.UTF8.GetBytes(payload);
-            return HttpUtility.UrlEncode(Convert.ToBase64String(bytes));
+            var base64 = Convert.ToBase64String(bytes);
+            //DJA-not doing the URL encode because the context cache function app is not expecting
+            // the data to be URL encoded.
+            //var urlEncode = HttpUtility.UrlEncode(base64);
+            return base64;
+
         }
     }
 }

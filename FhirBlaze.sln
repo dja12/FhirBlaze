@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FhirBlaze.SharedComponents"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FhirBlaze.PatientModule", "FhirBlaze.PatientModule\FhirBlaze.PatientModule.csproj", "{A3503D1F-E268-4DDE-BD7F-4C963DA5D355}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FhirBlaze", "FhirBlaze\FhirBlaze.csproj", "{729AF617-9067-4A91-AFD1-F0157846CF33}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FhirBlaze", "FhirBlaze\FhirBlaze.csproj", "{729AF617-9067-4A91-AFD1-F0157846CF33}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FhirBlaze.QuestionnaireModule", "FhirBlaze.QuestionnaireModule\FhirBlaze.QuestionnaireModule.csproj", "{110D5695-5D70-4828-8F54-230E22A758FC}"
 EndProject

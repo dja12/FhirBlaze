@@ -41,9 +41,6 @@ namespace FhirBlaze
                     options.ProviderOptions.DefaultAccessTokenScopes.Add(scope);
                 }
 
-                //DJA-trying to get v2.0 access token from MSAL login
-                options.ProviderOptions.DefaultAccessTokenScopes.Add("https://smart-on-fhir-server.trulitehealth1.onmicrosoft.com/user_impersonation");
-
                 builder.Configuration.Bind("AzureAd", options.ProviderOptions.Authentication);
                 options.ProviderOptions.LoginMode = "redirect";
             })

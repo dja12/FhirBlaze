@@ -24,14 +24,8 @@
     [Parameter]
     public bool ShowAsLink { get; set; } = false;
 
-    [CascadingParameter] private Task<AuthenticationState>? AuthenticationState { get; set; }
-
     [Inject] IAccessTokenProvider TokenProvider { get; set; }
 
-
-    private string LaunchLink { get; set; }
-
-    //    protected override void OnInitialized()
     protected override async System.Threading.Tasks.Task OnInitializedAsync()
     {
         base.OnInitialized();
@@ -44,27 +38,25 @@
         {
             AppState.AccessToken = token.Value;
         }
-
-        if (AuthenticationState is not null)
-        {
-            var authState = await AuthenticationState;
-            var oid = authState?.User?.Claims?.FirstOrDefault(c => c.Type == "oid");
-            AppState.UserId = oid?.Value;
-        }
-
-        var ctx = new
-        {
-            patient = CurrentPatient
-        };
-        LaunchLink = Launcher.GetLaunchUrl(JsonConvert.SerializeObject(ctx));
     }
 
     private async Task LaunchApp()
     {
+        var ctx = new
+        {
+            patient = CurrentPatient,
+            viewType = Navigator ? "navigator" : "browser",
+            userFirstName = AppState.UserFirstName,
+            userLastName = AppState.UserLastName
+        };
+        var encodedJson = Launcher.EncodePayload(JsonConvert.SerializeObject(ctx));
+
+        var launchLink = Launcher.GetLaunchUrl(encodedJson);
+
         // Call the cache context endpoint first.
-        await CacheContextService.SaveConext(AppState.AccessToken, AppState.UserId, CurrentPatient, Navigator);
+        await CacheContextService.SaveConext(AppState.AccessToken, AppState.UserId, encodedJson);
 
         // Now launch the App
-        await JSRuntime.InvokeVoidAsync("open", LaunchLink, "_blank");
+        await JSRuntime.InvokeVoidAsync("open", launchLink, "_blank");
     }
 }

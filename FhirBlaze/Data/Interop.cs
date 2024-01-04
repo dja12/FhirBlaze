@@ -9,19 +9,17 @@ namespace FhirBlaze.Data
 {
     public static class Interop
     {
-
-
-        internal static ValueTask<object> CreateReport(
+        internal static ValueTask CreateReport(
              IJSRuntime jsRuntime,
              ElementReference reportContainer,
              string accessToken,
              string embedUrl,
              string embedReportId)
         {
-            return jsRuntime.InvokeAsync<object>(
-                "ShowMyPowerBI.showReport",
-                reportContainer, accessToken, embedUrl,
-                embedReportId);
+            //return jsRuntime.InvokeAsync<object>(
+            return jsRuntime.InvokeVoidAsync(
+                "showReport",
+                reportContainer, accessToken, embedUrl, embedReportId);
         }
 
     }

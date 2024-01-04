@@ -1,5 +1,6 @@
 ﻿@page "/practitioners"
 @using FhirBlaze.PractitionerModule.Components
+@using FhirBlaze.SharedComponents
 
 @namespace FhirBlaze.PractitionerModule.Pages
 
@@ -20,6 +21,13 @@
     <PractitionerSearchComponent SearchClicked="SearchPractitioner" />
 }
 
-<CascadingValue Value="Practitioners">
-    <PractitionerListComponent OnPractitionerSelected="PractitionerSelected" />
-</CascadingValue>
+@if (!Loading)
+{
+    <CascadingValue Value="Practitioners">
+        <PractitionerListComponent OnPractitionerSelected="PractitionerSelected" />
+    </CascadingValue>
+}
+else
+{
+    <LoadingSpinner />
+}

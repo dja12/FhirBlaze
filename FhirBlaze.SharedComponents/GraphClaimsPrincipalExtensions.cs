@@ -1,14 +1,21 @@
 ﻿using Microsoft.Graph;
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 
-namespace FhirBlaze.Graph
+namespace FhirBlaze.SharedComponents
 {
+    public static class GraphUserExtensions
+    {
+        public const string FhirUser = "extension_5a70c62420f4400ea9cceef28dccbd71_fhirUser";
+    }
+
     public static class GraphClaimTypes
     {
         public const string Email = "graph_email";
         public const string Photo = "graph_photo";
+        public const string FhirUser = "graph_fhiruser";
     }
 
     // Helper methods to access Graph user data stored in
@@ -27,6 +34,12 @@ namespace FhirBlaze.Graph
             return claim == null ? null : claim.Value;
         }
 
+        public static string GetUserGraphFhirUser(this ClaimsPrincipal claimsPrincipal)
+        {
+            var claim = claimsPrincipal.FindFirst(GraphClaimTypes.FhirUser);
+            return claim == null ? null : claim.Value;
+        }
+
         // Adds claims from the provided User object
         public static void AddUserGraphInfo(this ClaimsPrincipal claimsPrincipal, User user)
         {
@@ -35,6 +48,12 @@ namespace FhirBlaze.Graph
             identity.AddClaim(
                 new Claim(GraphClaimTypes.Email,
                     user.Mail ?? user.UserPrincipalName));
+
+            var fhirUser = user.AdditionalData.FirstOrDefault(e => e.Key == GraphUserExtensions.FhirUser);
+            if (fhirUser.Value is not null)
+            {
+                identity.AddClaim(new Claim(GraphClaimTypes.FhirUser, fhirUser.Value.ToString()));
+            }
         }
 
         // Converts a photo Stream to a Data URI and stores it in a claim

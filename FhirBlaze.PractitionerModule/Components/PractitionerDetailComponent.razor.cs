@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
+using FhirBlaze.Models;
 
 namespace FhirBlaze.PractitionerModule.Components
 {
     public partial class PractitionerDetailComponent
     {
         [Parameter]
-        public EventCallback<Practitioner> OnPractitionerSaved { get; set; }
+        public EventCallback<(Practitioner, bool)> OnPractitionerSaved { get; set; }
 
         [Parameter]
         public bool Processing { get; set; }
@@ -18,6 +19,20 @@ namespace FhirBlaze.PractitionerModule.Components
 
         [CascadingParameter]
         public Practitioner Practitioner { get; set; }
+
+        [Inject]
+        private AppState AppState { get; set; }
+
+        protected override void OnParametersSet()
+        {
+            base.OnParametersSet();
+            if (!string.IsNullOrEmpty(this.Practitioner.Id))
+            {
+                EHRUser = this.Practitioner.Id.Equals(AppState.PractitionerId);
+            }
+        }
+
+        public bool EHRUser { get; set; } = false;
 
         public bool Active
         {
@@ -76,7 +91,7 @@ namespace FhirBlaze.PractitionerModule.Components
 
         protected async void SavePractitioner()
         {
-            await OnPractitionerSaved.InvokeAsync(this.Practitioner);
+            await OnPractitionerSaved.InvokeAsync((this.Practitioner, this.EHRUser));
         }
 
         public void AddHumanName()

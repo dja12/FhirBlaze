@@ -1,6 +1,8 @@
 ﻿using FhirBlaze.PatientModule.Models;
+using FhirBlazeNotification = FhirBlaze.SharedComponents.Models.Notification;
 using FhirBlaze.SharedComponents.Services;
 using Hl7.Fhir.Model;
+using Hl7.Fhir.Rest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -18,6 +20,9 @@ namespace FhirBlaze.PatientModule
     {
         [Inject]
         IFhirService FhirService { get; set; }
+        [Inject]
+        private NotificationService NotificationService { get; set; }
+
         protected bool ShowCreate { get; set; } = false;
         protected bool ShowUpdate { get; set; } = false;
         protected bool ShowSearch { get; set; } = false;
@@ -43,7 +48,20 @@ namespace FhirBlaze.PatientModule
         {
             Loading = true;
             await base.OnInitializedAsync();
-            Patients = await FhirService.GetPatientsAsync();
+            try
+            {
+                Patients = await FhirService.GetPatientsAsync();
+            }
+            catch (FhirOperationException fhirEx)
+            {
+                Console.WriteLine("Error getting practitioner list.");
+                NotificationService.AddNotification(new FhirBlazeNotification
+                {
+                    Title = "FHIR Request Failed",
+                    Message = $"{fhirEx.Message}",
+                    CreatedAt = DateTime.Now
+                });
+            }
             Loading = false;
             ShouldRender();
         }

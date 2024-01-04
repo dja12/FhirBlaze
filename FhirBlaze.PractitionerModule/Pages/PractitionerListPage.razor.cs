@@ -1,5 +1,7 @@
-﻿using FhirBlaze.SharedComponents.Services;
+﻿using FhirBlaze.SharedComponents.Models;
+using FhirBlaze.SharedComponents.Services;
 using Hl7.Fhir.Model;
+using Hl7.Fhir.Rest;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -13,9 +15,13 @@ namespace FhirBlaze.PractitionerModule.Pages
     public partial class PractitionerListPage
     {
         private bool _loading = true;
+        private bool Loading { get { return _loading; } }
 
         [Inject]
         private IFhirService FhirService { get; set; }
+
+        [Inject]
+        private NotificationService NotificationService { get; set; }
 
         [Inject]
         private NavigationManager NavigationManager { get; set; }
@@ -30,7 +36,21 @@ namespace FhirBlaze.PractitionerModule.Pages
         protected override async Task OnInitializedAsync()
         {
             _loading = true;
-            Practitioners = await FhirService.GetPractitionersAsync();
+            try
+            {
+                Practitioners = await FhirService.GetPractitionersAsync();
+            }
+            catch (FhirOperationException fhirEx)
+            {
+                Console.WriteLine("Error getting practitioner list.");
+                NotificationService.AddNotification(new Notification
+                {
+                    Title = "FHIR Request Failed",
+                    Message = $"{fhirEx.Message}",
+                    CreatedAt = DateTime.Now
+                });
+
+            }
             _loading = false;
         }
 

@@ -5,6 +5,8 @@
 		<UserSecretsId>d5d6b92a-009f-4333-aa32-2607d1ed3efc</UserSecretsId>
 	</PropertyGroup>
 
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
 	<ItemGroup>
 		<PackageReference Include="Blazored.Modal" Version="6.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.5" />
@@ -12,7 +14,7 @@
 		<PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="6.0.5" />
 		<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Graph.Beta" Version="4.6.0-preview" />
+		<PackageReference Include="Microsoft.Graph.Beta" Version="4.60.0-preview" />
 		<PackageReference Include="Microsoft.PowerBI.Api" Version="4.6.0" />
 		<PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -30,4 +32,10 @@
 		<TrimmerRootAssembly Include="Microsoft.Authentication.WebAssembly.Msal" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Remove="wwwroot\scripts\powerbi.min.js" />
+	</ItemGroup>
+	<ItemGroup>
+      <None Include="wwwroot\scripts\showreport.js" />
+	</ItemGroup>
 </Project>

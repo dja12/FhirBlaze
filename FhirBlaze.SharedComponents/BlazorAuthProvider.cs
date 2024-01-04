@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication.Internal;
 using Microsoft.Graph;
 
-namespace FhirBlaze.Graph
+namespace FhirBlaze.SharedComponents
 {
     public class BlazorAuthProvider : IAuthenticationProvider
     {
