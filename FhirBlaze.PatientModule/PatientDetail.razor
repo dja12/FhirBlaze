@@ -31,7 +31,7 @@
                     <dd class="col-sm-9">@GetPatientRace(CurrentPatient)</dd>
 
                     <dt class="col-sm-3">Ethnicity:</dt>
-                    <dd class="col-sm-9"></dd>
+                    <dd class="col-sm-9">@GetPatientEthnicity(CurrentPatient)</dd>
 
                     <dt class="col-sm-3">Deceased:</dt>
                     <dd class="col-sm-9">@CurrentPatient.Deceased</dd>
@@ -145,15 +145,16 @@
 
     private string GetPatientRace(Patient patient)
     {
-        //IEnumerable<Extension> extensions = patient.Select<Patient, Extension>("Patient.extension.where(url='http://hl7.org/fhir/us/core/StructureDefinition/us-core-race').extension.where(url='ombCategory')");
-
         Extension usCoreRaceExt = patient?.Extension?.FirstOrDefault(e => e.Url == "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race");
-        Extension ombCategoryExt = usCoreRaceExt?.Extension?.FirstOrDefault(e => e.Url == "text");
+        var coding = (Coding)usCoreRaceExt?.Extension?.FirstOrDefault(e => e.Url == "ombCategory")?.Value;
+        return coding?.Display + " (" + coding?.Code + ")";
+    }
 
-        //TODO Fix out how to cast the Extension object to the actual object.
-        //var raceList = ombCategoryExt.Extension.Cast<string>(); // doesn't work.
-
-        return ombCategoryExt?.Url;
+    private string GetPatientEthnicity(Patient patient)
+    {
+        Extension usCoreRaceExt = patient?.Extension?.FirstOrDefault(e => e.Url == "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity");
+        var coding = (Coding)usCoreRaceExt?.Extension?.FirstOrDefault(e => e.Url == "ombCategory")?.Value;
+        return coding?.Display + " (" + coding?.Code + ")";
     }
 
     private void ShowPatientJson()
