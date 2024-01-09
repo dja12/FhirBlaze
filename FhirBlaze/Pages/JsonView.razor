@@ -3,20 +3,32 @@
 @using FhirBlaze.Models
 @using Hl7.Fhir.Serialization
 
-@inject AppState AppState 
+@inject AppState AppState
+@inject IJSRuntime JSRuntime
 
-<div class="card mb-6">
-    <div class="card-header">
-        <h3 class=".card-title">
-            JSON Viewer
-        </h3>
-    </div>
-    <div class="card-body">
-        <pre>
+<p>
+    <button class="btn btn-primary" @onclick="GoBack">Back</button>
+</p>
+
+<p>
+    <div class="card mb-6">
+        <div class="card-header">
+            <h3 class=".card-title">
+                JSON Viewer
+            </h3>
+        </div>
+        <div class="card-body">
+            <pre>
             @ResourceJson
         </pre>
+        </div>
     </div>
-</div>
+</p>
+
+<p>
+    <button class="btn btn-primary" @onclick="GoBack">Back</button>
+</p>
+
 
 @code {
     private FhirJsonSerializer serializer = new FhirJsonSerializer(new SerializerSettings { Pretty = true });
@@ -27,5 +39,11 @@
         ResourceJson = serializer.SerializeToString(AppState.CurrentResource);
 
         return base.OnInitializedAsync();
+    }
+
+    // Go back in browser using Javascript on a Razor Page
+    private async Task GoBack()
+    {
+        await JSRuntime.InvokeVoidAsync("history.back");
     }
 }

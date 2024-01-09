@@ -18,6 +18,9 @@
         <div class="card-body">
             <p class="card-text">
                 <dl class="row">
+                    <dt class="col-sm-3">ID:</dt>
+                    <dd class="col-sm-9">@CurrentPatient.Id</dd>
+
                     <dt class="col-sm-3">DOB:</dt>
                     <dd class="col-sm-9">@CurrentPatient.BirthDate</dd>
 
@@ -29,13 +32,22 @@
 
                     <dt class="col-sm-3">Ethnicity:</dt>
                     <dd class="col-sm-9"></dd>
+
+                    <dt class="col-sm-3">Deceased:</dt>
+                    <dd class="col-sm-9">@CurrentPatient.Deceased</dd>
+
+                    <dt class="col-sm-3">Marital Status:</dt>
+                    <dd class="col-sm-9">@CurrentPatient.MaritalStatus?.FirstOrDefault(t => t.Key == "text").Value</dd>
+
+                    <dt class="col-sm-3">Languge:</dt>
+                    <dd class="col-sm-9">@CurrentPatient.Communication?.FirstOrDefault()?.Language?.Coding?.FirstOrDefault(c => c.System == "urn:ietf:bcp:47")?.Code </dd>
                 </dl>
                 <dl class="row">
                     <dt class="col-sm-3">Address:</dt>
-                    <dd class="col-sm-9"><AddressDisplay Address="@CurrentPatient.Address?.FirstOrDefault()" /></dd>
+                    <dd class="col-sm-9"><AddressDisplay Address="@CurrentPatient.Address?.FirstOrDefault(a => a.Use == Address.AddressUse.Home)" /></dd>
 
                     <dt class="col-sm-3">Phone:</dt>
-                    <dd class="col-sm-9">@CurrentPatient.Telecom?.FirstOrDefault(t => t.System == ContactPoint.ContactPointSystem.Phone)?.Value</dd>
+                    <dd class="col-sm-9">@CurrentPatient.Telecom?.FirstOrDefault(t => t.Use == ContactPoint.ContactPointUse.Mobile)?.Value</dd>
 
                     <dt class="col-sm-3 text-truncate">E-mail:</dt>
                     <dd class="col-sm-9">@CurrentPatient.Telecom?.FirstOrDefault(e => e.System == ContactPoint.ContactPointSystem.Email)?.Value</dd>

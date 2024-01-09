@@ -4,16 +4,17 @@
     <ValidationSummary />
     <div class="row mb-3">
         <label for="patientId" class="col-sm-2 col-form-label">ID</label>
-        <div class="col-sm-10">
+        <div class="col-sm-4">
             <InputText id="patientId" @bind-Value="Patient.PatientID" class="form-control" />
         </div>
    </div>
 
    <div class="row mb-3">
-       <label for="firstName" class="col-sm-2 col-form-label">First</label>
+       @*<label for="firstName" class="col-sm-2 col-form-label">First</label>
        <div class="col-sm-4">
            <InputText id="firstName" @bind-Value="Patient.FirstName" class="form-control" />
-       </div>
+       </div>*@
+
        <label for="lastName" class="col-sm-2 col-form-label">Last</label>
        <div class="col-sm-4">
            <InputText id="lastName" @bind-Value="Patient.LastName" class="form-control" />

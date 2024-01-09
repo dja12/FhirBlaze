@@ -47,6 +47,7 @@ namespace FhirBlaze.PatientModule
         public async Task FetchPatientsAsync()
         {
             Loading = true;
+            ShowSearch = false;
             await base.OnInitializedAsync();
             try
             {
@@ -90,11 +91,15 @@ namespace FhirBlaze.PatientModule
             ResetSelectedPatient();
             try
             {
-                Patients = await FhirService.SearchPatient(patient); //change to patient
                 ProcessingSearch = true;
+
+                Patients = await FhirService.SearchPatient(patient); //change to patient
                 
                 ProcessingSearch = false;
-                ToggleSearch();
+
+                // Keep search panel open until Reset Search button is clicked.
+                // ToggleSearch();
+
                 ShouldRender();
             }
             catch (Exception e)

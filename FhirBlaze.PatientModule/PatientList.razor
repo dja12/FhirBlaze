@@ -6,12 +6,13 @@
 @using Microsoft.Extensions.Configuration
 @inject NavigationManager Navigation
 @inject IConfiguration Configuration
+@*<button @onclick="ToggleCreate" class="btn btn-primary mb-1 mr-1">@(ShowCreate ? "Cancel" : "Add Patient")</button>*@
 
-<button @onclick="ToggleCreate" class="btn btn-primary mb-1 mr-1">@(ShowCreate ? "Cancel" : "Add Patient")</button>
 <button @onclick="ToggleSearch" class="btn btn-primary mb-1 mr-1">@(ShowSearch ? "Cancel" : "Search Patient")</button>
-<button @onclick="()=>ToggleQList(null)" class="btn btn-primary mb-1 mr-1">@((string.IsNullOrEmpty(QuestionnaireId)) ? "Select Questionnaire" : "Change Questionnaire")</button>
-<button @onclick="ToggleNaturalLanguageSearch" disabled="@(bool.Parse(Configuration["UseGraphir"]))" class="btn btn-primary mb-1 mr-1">Toggle Natural Language Search</button>
 <button @onclick="FetchPatientsAsync" class="btn btn-primary mb-1">Reset Search</button>
+
+@*<button @onclick="()=>ToggleQList(null)" class="btn btn-primary mb-1 mr-1">@((string.IsNullOrEmpty(QuestionnaireId)) ? "Select Questionnaire" : "Change Questionnaire")</button>
+<button @onclick="ToggleNaturalLanguageSearch" disabled="@(bool.Parse(Configuration["UseGraphir"]))" class="btn btn-primary mb-1 mr-1">Toggle Natural Language Search</button>*@
 
 @if (ShowQuestionnaireList)
 {
@@ -63,7 +64,7 @@
                                 <td>@patient.Gender</td>
                                 <td>@patient.BirthDate</td>
                                 <td>
-                                    <button @onclick="@(e => PatientSelected(e, patient))" class="btn btn-primary">Edit</button>
+                                    @*<button @onclick="@(e => PatientSelected(e, patient))" class="btn btn-primary">Edit</button>*@
                                     <button @onclick="@(e => GotoDetails(patient.Id))" class="btn btn-primary">Details</button>
                                     <TruityAppLauncher CurrentPatient=@patient.Id />
                                     @*<button @onclick="@((e)=> ShowQuestionnaire(patient.Id, patient.Name.FirstOrDefault()))" class="btn btn-primary">Show Questionnaire</button>*@

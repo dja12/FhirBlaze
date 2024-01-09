@@ -10,7 +10,7 @@
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 @inject AppState AppState
 
-<button class="btn @ButtonClass()" @onclick="LaunchApp">Truity Provider</button>
+<button class="btn @ButtonClass()" disabled="@Processing" @onclick="LaunchApp">@Label</button>
 
 @code {
     private string ButtonClass() => ShowAsLink ? "btn-link" : "btn-primary";
@@ -24,11 +24,28 @@
     [Parameter]
     public bool ShowAsLink { get; set; } = false;
 
+    private readonly string DefaultLabel = "Truity Provider";
+    private string Label {
+        get
+        {
+            return Processing ?
+                "Launching..." :
+                Navigator ? DefaultLabel + " Navigator" : DefaultLabel;
+        }
+    }
+
+    private bool Processing { get; set; }
+
     [Inject] IAccessTokenProvider TokenProvider { get; set; }
 
     protected override async System.Threading.Tasks.Task OnInitializedAsync()
     {
         base.OnInitialized();
+
+        //if (Navigator)
+        //{
+        //    Label = Label + " Navigator";
+        //}
 
         var options = new AccessTokenRequestOptions();
         options.Scopes = new List<string>();
@@ -53,10 +70,14 @@
 
         var launchLink = Launcher.GetLaunchUrl(encodedJson);
 
+        Processing = true;
+
         // Call the cache context endpoint first.
         await CacheContextService.SaveConext(AppState.AccessToken, AppState.UserId, encodedJson);
 
         // Now launch the App
         await JSRuntime.InvokeVoidAsync("open", launchLink, "_blank");
+
+        Processing = false;
     }
 }
