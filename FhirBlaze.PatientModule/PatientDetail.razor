@@ -57,7 +57,7 @@
             <TruityAppLauncher CurrentPatient=@Id Navigator="true" />
 
             @*<a class="btn btn-primary" target="_blank" href="@ChestistLaunchUrl">xTruity Provider</a>
-        <button type="button" class="btn btn-primary" @onclick="LaunchQuestionnaire">Take Survey</button>*@
+                <button type="button" class="btn btn-primary" @onclick="LaunchQuestionnaire">Take Survey</button>*@
 
         </div>
     </div>
@@ -105,6 +105,9 @@
         </div>*@
 
     <br />
+    <TruityAppLauncher CurrentPatient=@Id Embed="true" Navigator="true" />
+
+    <br />
     <ObservationsDisplay PatientObservations="@PatientObservations" />
     <br />
     <ProceduresDisplay PatientProcedures="@PatientProcedures" />
@@ -121,26 +124,21 @@
     [Parameter]
     public string Id { get; set; }
 
-    public string ChestistLaunchUrl { get; set; }
     public IList<Observation> PatientObservations { get; set; } = new List<Observation>();
     public IList<Procedure> PatientProcedures { get; set; } = new List<Procedure>();
     public IList<Condition> PatientConditions { get; set; } = new List<Condition>();
     public IList<MedicationRequest> PatientMedicationRequests { get; set; } = new List<MedicationRequest>();
     public Patient CurrentPatient { get; set; } = new Patient();
 
+
     protected override async System.Threading.Tasks.Task OnInitializedAsync()
     {
         CurrentPatient = await fhirService.GetResourceByIdAsync<Patient>(Id);
-        var ctx = new
-        {
-            patient = CurrentPatient.Id
-        };
-        ChestistLaunchUrl = Launcher.GetLaunchUrl(JsonConvert.SerializeObject(ctx));
 
-        PatientObservations = await fhirService.GetPatientObservations(ctx.patient);
-        PatientProcedures = await fhirService.GetPatientProcedures(ctx.patient);
-        PatientConditions = await fhirService.GetPatientConditions(ctx.patient);
-        PatientMedicationRequests = await fhirService.GetPatientMedicationRequests(ctx.patient);
+        PatientObservations = await fhirService.GetPatientObservations(CurrentPatient.Id);
+        PatientProcedures = await fhirService.GetPatientProcedures(CurrentPatient.Id);
+        PatientConditions = await fhirService.GetPatientConditions(CurrentPatient.Id);
+        PatientMedicationRequests = await fhirService.GetPatientMedicationRequests(CurrentPatient.Id);
     }
 
     private string GetPatientRace(Patient patient)
@@ -161,16 +159,6 @@
     {
         AppState.CurrentResource = CurrentPatient;
         UriHelper.NavigateTo("jsonview");
-    }
-
-    public void LaunchClick()
-    {
-        var ctx = new
-        {
-            patient = CurrentPatient.Id
-        };
-        var href = Launcher.GetLaunchUrl(JsonConvert.SerializeObject(ctx));
-        UriHelper.NavigateTo(href);
     }
 
     public void LaunchQuestionnaire()

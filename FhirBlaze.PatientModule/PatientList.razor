@@ -65,7 +65,7 @@
                                 <td>@patient.BirthDate</td>
                                 <td>
                                     @*<button @onclick="@(e => PatientSelected(e, patient))" class="btn btn-primary">Edit</button>*@
-                                    <button @onclick="@(e => GotoDetails(patient.Id))" class="btn btn-primary">Details</button>
+                                    <button @onclick="@(e => GotoDetails(patient.Id))" class="btn btn-primary">Chart</button>
                                     <TruityAppLauncher CurrentPatient=@patient.Id />
                                     @*<button @onclick="@((e)=> ShowQuestionnaire(patient.Id, patient.Name.FirstOrDefault()))" class="btn btn-primary">Show Questionnaire</button>*@
                                     <button @onclick="@(e => GotoCDSHooks(patient.Id))" class="btn btn-primary">CDS Hook</button>

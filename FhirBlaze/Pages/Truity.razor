@@ -1,0 +1,34 @@
+﻿@page "/truity"
+
+@using FhirBlaze.Models
+@using FhirBlaze.SharedComponents.SMART
+@using Newtonsoft.Json
+@inject AppState AppState
+@inject SmartLauncher Launcher
+
+<h3>TruLite Health Equity</h3>
+
+<div style="height: calc(100vh - 150px)">
+    <iframe style="width:100%;height:100%" src="@LaunchLink" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+@code {
+    private string LaunchLink { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        var ctx = new
+        {
+            viewType = "browser",
+            userFirstName = AppState.UserFirstName,
+            userLastName = AppState.UserLastName
+        };
+        var encodedJson = Launcher.EncodePayload(JsonConvert.SerializeObject(ctx));
+
+        LaunchLink = Launcher.GetLaunchUrl(encodedJson);
+
+        return base.OnInitializedAsync();
+    }
+
+}
+

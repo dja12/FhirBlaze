@@ -10,10 +10,33 @@
 @inject Microsoft.JSInterop.IJSRuntime JSRuntime
 @inject AppState AppState
 
-<button class="btn @ButtonClass()" disabled="@Processing" @onclick="LaunchApp">@Label</button>
+@if (Embed)
+{
+    <div class="card mb-6">
+        <div class="card-header">
+            <h3 class=".card-title">
+                <button class="btn btn-link btn-block text-left collapsed " type="button" @onclick="() => Collapsed = !Collapsed">
+                    <h3>
+                        TruLite Health Equity
+                    </h3>
+                </button>
+            </h3>
+        </div>
+        <div class="collapse @EmbedClass()">
+            <iframe style="width:100%;height:400px" src="@EmbedUrl" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        </div>
+    </div>
+}
+else
+{
+    <button class="btn @ButtonClass()" disabled="@Processing" @onclick="LaunchApp">@Label</button>
+}
 
 @code {
     private string ButtonClass() => ShowAsLink ? "btn-link" : "btn-primary";
+    private string EmbedClass() => Collapsed ? "show" : "";
+    private bool Collapsed { get; set; }
+    private string EmbedUrl { get; set; }
 
     [Parameter]
     public string CurrentPatient { get; set; }
@@ -24,8 +47,12 @@
     [Parameter]
     public bool ShowAsLink { get; set; } = false;
 
+    [Parameter]
+    public bool Embed { get; set; } = false;
+
     private readonly string DefaultLabel = "Truity Provider";
-    private string Label {
+    private string Label
+    {
         get
         {
             return Processing ?
@@ -42,11 +69,6 @@
     {
         base.OnInitialized();
 
-        //if (Navigator)
-        //{
-        //    Label = Label + " Navigator";
-        //}
-
         var options = new AccessTokenRequestOptions();
         options.Scopes = new List<string>();
         options.Scopes.Append<string>("https://smart-on-fhir-server.trulitehealth1.onmicrosoft.com/user_impersonation");
@@ -54,6 +76,28 @@
         if (accessTokenResult.TryGetToken(out var token))
         {
             AppState.AccessToken = token.Value;
+        }
+
+
+        if (Embed)
+        {
+            // We are showing the embed view of the app so we need to call the cache context service now and build
+            // the embed URL for the iframe.
+
+            var ctx = new
+            {
+                patient = CurrentPatient,
+                viewType = Navigator ? "navigator" : "browser",
+                userFirstName = AppState.UserFirstName,
+                userLastName = AppState.UserLastName
+            };
+            var encodedJson = Launcher.EncodePayload(JsonConvert.SerializeObject(ctx));
+
+            // Call the cache context endpoint first.
+            await CacheContextService.SaveConext(AppState.AccessToken, AppState.UserId, encodedJson);
+
+            // Set the embed URL for the iframe.
+            EmbedUrl = Launcher.GetLaunchUrl(encodedJson);
         }
     }
 
